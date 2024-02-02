@@ -1,0 +1,191 @@
+---
+title: "Lab 1: Graphing MLS Salaries"
+author: "Surabhi Damle"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+knitr::opts_knit$set(
+  root.dir = "."
+  )
+```
+
+### 1. Load libraries and data.
+
+```{r initialize}
+# Load files, environment variables, libraries, etc. here
+
+
+#install.packages("janitor")
+#install.packages("Hmisc")
+#install.packages("ggthemes")
+#install.packages("DT")
+
+
+library(tidyverse)
+library(janitor)
+
+
+# Source: https://s3.amazonaws.com/mlspa/2023-Salary-Report-as-of-April-30.pdf 
+# Useful for liberating data from PDFs: https://tabula.technology/ 
+# Context: https://mlsplayers.org/resources/salary-guide
+mls_salaries <- read_csv("tabula-2023-Salary-Report-as-of-April-30.csv", 
+    col_types = cols(`Base Salary` = col_number(), 
+        `Calculated Guaranteed Compensation` = col_number()))
+
+
+```
+
+### 2. Doh. Looks like we have some column names that need cleaning.
+
+```{r}
+mls_salaries<- janitor::clean_names(mls_salaries)
+```
+
+### 3. Rename any of those columns that you can make shorter without making them less clear.
+
+```{r}
+names(mls_salaries) <- c("team", "last_name", "first_name", "position", "base_salary", "guaranteed_comp")
+```
+
+### 4. We always want to start by taking our data out to coffee and just getting to know it.
+
+```{r}
+mls_salaries %>% Hmisc::describe()
+```
+
+### 5. Let's arrange these by base salary.
+
+```{r}
+mls_salaries %>%
+  arrange(base_salary) %>%
+  DT::datatable() %>%
+  DT::formatCurrency(c('base_salary', 'guaranteed_comp'),
+                 digits = 0)
+```
+
+### 6. That's a lot to look at. Let's look just at players on the Charlotte's team.
+
+```{r}
+mls_salaries %>%
+  filter(team == "Charlotte FC") %>%
+  arrange(base_salary)
+```
+
+### 7. It looks like the players' base salaries and their guarantee compensation is often the same. I wonder what percentage of each player's guaranteed compensation is his base salary?
+
+```{r}
+mls_salaries %>%
+  filter(team == "Charlotte FC") %>%
+  mutate(other_compensation = guaranteed_comp - base_salary,
+         pct_base = base_salary / guaranteed_comp) %>%
+  arrange(desc(pct_base))
+```
+
+### 8. Looks like there's some difference there. I wonder what is "normal."
+
+```{r}
+mls_salaries %>%
+  filter(team == "Charlotte FC") %>%
+  mutate(other_compensation = guaranteed_comp - base_salary,
+         pct_base = base_salary / guaranteed_comp) %>%
+  summarise(mean(other_compensation),
+            median(other_compensation))
+```
+
+### 9. I wonder how base salary differs by position across all teams.
+
+```{r}
+by_pos<- mls_salaries %>%
+ group_by(position) %>%
+  summarise(max_base = max(base_salary),
+            median_base = median(base_salary),
+            min_base = min(base_salary)
+  )
+
+by_pos
+            
+```
+
+### 10. Let's see how that looks in a graph.
+
+```{r}
+date <- "April 30, 2023"
+
+ggplot(data = by_pos,
+       mapping = aes(x = fct_reorder(position,
+                         median_base), 
+                     y = median_base)) +
+  geom_col() +
+  scale_x_discrete(labels=c("GK" = "Goalkeepers", 
+                            "D" = "Defenders",
+                            "M" = "Midfielders",
+                            "F" = "Forwards")) +
+  # show y axis in dollar format
+  scale_y_continuous(labels=scales::dollar_format()) +
+  # use minimal theme
+  ggthemes::theme_fivethirtyeight() +
+  # customize labels
+  labs(
+    x = "Player Positions",
+    y = "Median Base Salary",
+    title = "Median base salary for MLS players",
+    subtitle = paste0("Data as of ", date, .sep = " "),
+    caption = "Source: mlsplayers.org/resources/salary-guide"
+  )
+```
+
+### 11. Let's save that as a file we can use elsewhere.
+
+```{r}
+my_chart <- ggplot(data = by_pos,
+       mapping = aes(x = fct_reorder(position,
+                         median_base), 
+                     y = median_base)) +
+  geom_col() +
+  scale_x_discrete(labels=c("GK" = "Goalkeepers", 
+                            "D" = "Defenders",
+                            "M" = "Midfielders",
+                            "F" = "Forwards")) +
+  # show y axis in dollar format
+  scale_y_continuous(labels=scales::dollar_format()) +
+  # use minimal theme
+  ggthemes::theme_fivethirtyeight() +
+  # customize labels
+  labs(
+    x = "Player Positions",
+    y = "Avg. Base Salary",
+    title = "Median base salary for MLS players",
+    subtitle = paste0("Data as of", date, .sep = " "),
+    caption = "Source: mlsplayers.org/resources/salary-guide"
+  )               
+
+ggsave(file="salaries_by_pos.jpg",
+       device = "jpg",
+       plot = my_chart,
+       path = NULL
+       )
+```
+
+
+```{r}
+by_team<-mls_salaries %>%
+ group_by(team) %>%
+  summarise(max_base = max(base_salary),
+            average_base = mean(base_salary),
+            min_base = min(base_salary),
+            median_base=
+median(base_salary)
+  )
+
+by_team%>%
+  DT::datatable() %>%
+  DT::formatCurrency(c('max_base', 'average_base','min_base', 'median_base'),
+                 digits = 0)
+```

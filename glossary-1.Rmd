@@ -1,0 +1,82 @@
+---
+title: "Spring 2024 Data Journalism Glossary"
+author: "Write Your Name Here"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+## Spring 2024 Data Journalism Glossary
+
+Over the course of the semester, you'll use this document to keep notes
+on each of the key terms we learn. Write these notes to a future you,
+who will use it throughout the semester to apply tools and techniques we
+learn to new situations as they arrive. These notes need to make sense
+to you, but I will be giving you a grade on it at the end of the
+semester (and I may ask to see it at various points throughout the
+semester).
+
+As you write, be sure to use "markdown" to style your text, create
+links, etc. Your grade on this assignment will assess your use of
+markdown style as well as the content. Here is a [good starting
+reference](https://rmarkdown.rstudio.com/lesson-8.html) on how to use
+markdown in R Studio.
+
+### Vocabulary for Unit 1
+
+1.  row
+2.  column
+3.  variable
+4.  observation
+5.  string
+6.  csv
+7.  file type
+8.  directory path
+9.  function
+10. environment
+11. object
+12. session
+13. console
+14. terminal
+15. package
+16. library
+17. install.packages()
+18. tidyverse
+    1.  dplyr
+    2.  ggplot
+    3.  readr
+19. dataframe
+20. assignment operator
+21. comparison operator
+22. arithmetic operator
+23. plot
+24. chunk
+25. render
+26. metadata
+27. knit
+28. programming language
+29. extensible
+30. IDE
+31. CRAN
+32. Assign (a value)
+33. \$
+34. NA
+35. mean()
+36. ? (for help)
+37. argument
+38. Up arrow to go back to any call
+39. markdown
+40. Rmarkdown
+41. YAML
+42. backticks
+43. curly braces
+44. formatting lists in markdown
+45. inline r code
+46. code format in markdown
+47. bold format in markdown
+48. italics format in markdown
+49. insert code chunk
+50. run all code
+51. run code chunk
